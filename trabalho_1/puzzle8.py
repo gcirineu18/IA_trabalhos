@@ -4,17 +4,18 @@ import time
 expected_output = ['1', '2', '3', '4', '5', '6', '7', '8', '0']
 sys.setrecursionlimit(90000)
 class Node:
-    def __init__(self, father = None, current_state = None, visited = False, direction = None):
+    def __init__(self, father = None, current_state = None, visited = False, direction = None, depth = None):
         self.father = father
         self.current_state = current_state
         self.visited = visited
         self.direction = direction
+        self.depth = depth
         
     def get_index(self):  
         return self.current_state.index("0")
     
     def catch_neiboughrs(self):
-        if self.catch_neiboughrs == None:
+        if self.current_state  == None:
             return []
         index = self.current_state.index("0")
 
@@ -61,34 +62,7 @@ class Node:
             else:
                 self.direction = f"{number} para baixo"               
 
-def dfs_recursive(node):
-
-    state_tuple = tuple(node.current_state)
-    
-    if state_tuple not in visited_states:
-        visited_states.add(state_tuple)
-    else:
-        return None
-
-    if node.current_state == expected_output:
-        arquivo.write("Sucesso.")
-        return node
-    
-    index = node.get_index()
-    len_neighbours = len(node.catch_neiboughrs())
-    neighbours = node.catch_neiboughrs()
- 
-    for i in range(len_neighbours):   
-       
-        new_state = node.current_state.copy()
-        new_state[neighbours[i]], new_state[index] = new_state[index], new_state[neighbours[i]]
-
-        result = dfs_recursive(Node(node,new_state, True))  
-        if result is not None:
-            return result 
-    return None
         
-
 def has_solution(list):
     count = 0
     for i in range(len(list)-1):
@@ -115,7 +89,7 @@ with open(file_name, 'w', encoding='utf-8') as arquivo:
 
     visited_states = set()
     nodes_list = []
-    initial_node = Node(None, current_state, True)
+    initial_node = Node(None, current_state, True, None, 0)
     nodes_list.append(initial_node)
 
     has_solution, count = has_solution(current_state)
@@ -153,18 +127,21 @@ with open(file_name, 'w', encoding='utf-8') as arquivo:
             if state_tuple not in visited_states:
                 count_visits += 1
                 visited_states.add(state_tuple)
-                newNode = Node(node,new_state, True)
+                newNode = Node(node,new_state, True, None, node.depth + 1)
                 nodes_list.append(newNode)
 
                 newNode.get_direction(neighbours[i], index, new_state[index])
                
         
-    count = 0        
+    count = 0   
+    arquivo.write("\n")     
     while(node):
-        
+        arquivo.write(f"Profundidade: {node.depth}\n") 
         node.show_pretty_matrix()
+
         arquivo.write("\n")
         arquivo.write(f"Sentido: {node.direction}\n")   
+        
         node = node.father
         count+=1
     arquivo.write(f"Número de ancestrais: {count - 1}\n")  
